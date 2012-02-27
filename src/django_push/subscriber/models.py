@@ -114,14 +114,17 @@ class SubscriptionManager(models.Manager):
 
 
 class Subscription(models.Model):
-    hub = models.URLField(_('Callback'), max_length=1023)
-    topic = models.URLField(_('Topic'), max_length=1023)
+    hub = models.URLField(_('Callback'), max_length=255)
+    topic = models.URLField(_('Topic'), max_length=255)
     verified = models.BooleanField(_('Verified'), default=False)
     verify_token = models.CharField(_('Verify Token'), max_length=255)
     lease_expiration = models.DateTimeField(_('Lease expiration'), null=True)
     secret = models.CharField(_('Secret'), max_length=255, null=True)
 
     objects = SubscriptionManager()
+
+    class Meta:
+        unique_together = ('hub', 'topic', )
 
     def __unicode__(self):
         return u'%s: %s' % (self.topic, self.hub)
