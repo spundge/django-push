@@ -60,29 +60,7 @@ def callback(request, pk):
             if signature != digest:
                 return HttpResponse('')
 
-        parsed = feedparser.parse(request.raw_post_data)
-        links = getattr(parsed.feed, 'links', None)
-        if links:
-            hub_url = subscription.hub
-            topic_url = subscription.topic
-            for link in links:
-                if link['rel'] == 'hub':
-                    hub_url = link['href']
-                elif link['rel'] == 'self':
-                    topic_url = link['href']
+        parsed = feedparser.parse(request.raw_post_data) or {}
+        updated.send(sender=subscription, notification=parsed)
 
-            needs_update = any((
-                hub_url and subscription.hub != hub_url,
-                topic_url != subscription.topic,
-            ))
-
-            if needs_update:
-                try:
-                    Subscription.objects.subscribe(topic_url, hub=hub_url)
-                except SubscriptionError:
-                    pass
-
-            updated.send(sender=subscription, notification=parsed)
-            return HttpResponse('')
-
-        return HttpResponse()
+        return HttpResponse('')
