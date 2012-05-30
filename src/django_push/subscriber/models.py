@@ -43,7 +43,9 @@ class SubscriptionManager(models.Manager):
             'mode': 'subscribe',
             'callback': subscription.callback_url,
             'topic': topic,
-            'verify': ('async', 'sync'),
+            # 'sync' verification generates a validation error with the
+            # pheedo hub
+            'verify': ('async', ),
             'verify_token': subscription.generate_token('subscribe'),
             'secret': secret,
         }
@@ -54,7 +56,9 @@ class SubscriptionManager(models.Manager):
 
         status = response.code
         if status in (202, 204):  # 202: deferred verification
-            subscription.verified = True
+            # The verified property is set in views.callback()
+            # subscription.verified = True
+            pass
         else:
             error = response.read()
             raise SubscriptionError('Subscription error on %s: %s' % (topic,
@@ -73,7 +77,9 @@ class SubscriptionManager(models.Manager):
             'mode': 'unsubscribe',
             'callback': subscription.callback_url,
             'topic': topic,
-            'verify': ('async', 'sync'),
+            # 'sync' verification generates a validation error with the
+            # pheedo hub
+            'verify': ('async', ),
             'verify_token': subscription.generate_token('unsubscribe'),
         }
         response = self.subscription_request(hub, params)
