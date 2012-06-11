@@ -1,5 +1,5 @@
 import base64
-import datetime
+from datetime import timedelta
 import random
 import urllib
 import urllib2
@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils import timezone
 from django.utils.hashcompat import sha_constructor
 from django.utils.translation import ugettext_lazy as _
 
@@ -143,13 +144,12 @@ class Subscription(models.Model):
         return self.verify_token
 
     def set_expiration(self, seconds):
-        self.lease_expiration = (datetime.datetime.utcnow() +
-                                 datetime.timedelta(seconds=seconds))
+        self.lease_expiration = (timezone.now() + timedelta(seconds=seconds))
         self.save()
 
     def has_expired(self):
         if self.lease_expiration:
-            return datetime.datetime.utcnow() > self.lease_expiration
+            return timezone.now() > self.lease_expiration
         return False
 
     @property
