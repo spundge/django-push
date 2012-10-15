@@ -19,7 +19,7 @@ def callback(request, pk):
         topic = request.GET.get('hub.topic') or request.GET.get('topic')
         challenge = request.GET.get('hub.challenge') or request.GET.get('challenge')
         lease_seconds = request.GET.get('hub.lease_seconds') or request.GET.get('lease_seconds')
-        verify_token = request.GET.get('hub.verify_token') or request.GET.get('verify_token')
+        verify_token = request.GET.get('hub.verify_token') or request.GET.get('verify_token', '')
 
         if mode == 'subscribe':
             if not verify_token.startswith(mode):
@@ -27,7 +27,7 @@ def callback(request, pk):
 
             invalid_subscription = any((
                 all((
-                    verify_token is not None,
+                    verify_token,
                     subscription.verify_token != verify_token,
                 )),
                 topic != subscription.topic,
