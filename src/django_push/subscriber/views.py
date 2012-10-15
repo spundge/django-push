@@ -15,11 +15,11 @@ def callback(request, pk):
     subscription = get_object_or_404(Subscription, pk=pk)
 
     if request.method == 'GET':
-        mode = request.GET['hub.mode']
-        topic = request.GET['hub.topic']
-        challenge = request.GET['hub.challenge']
-        lease_seconds = request.GET.get('hub.lease_seconds', None)
-        verify_token = request.GET.get('hub.verify_token', None)
+        mode = request.GET.get('hub.mode') or request.GET.get('mode')
+        topic = request.GET.get('hub.topic') or request.GET.get('topic')
+        challenge = request.GET.get('hub.challenge') or request.GET.get('challenge')
+        lease_seconds = request.GET.get('hub.lease_seconds') or request.GET.get('lease_seconds')
+        verify_token = request.GET.get('hub.verify_token') or request.GET.get('verify_token')
 
         if mode == 'subscribe':
             if not verify_token.startswith(mode):
