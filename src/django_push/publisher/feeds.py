@@ -9,13 +9,22 @@ class HubAtom1Feed(Atom1Feed):
 
         hub = self.feed.get('hub')
         if hub is not None:
-            handler.addQuickElement(u'link', '', {u'rel': u'hub',
-                                                  u'href': hub})
+            handler.addQuickElement('link', '', {'rel': 'hub',
+                                                 'href': hub})
 
 
 class Feed(BaseFeed):
     feed_type = HubAtom1Feed
-    hub = getattr(settings, 'PUSH_HUB')
+    hub = None
+
+    def get_hub(self, obj):
+        if self.hub is None:
+            hub = getattr(settings, 'PUSH_HUB', None)
+        else:
+            hub = self.hub
+        return hub
 
     def feed_extra_kwargs(self, obj):
-        return {'hub': self.hub}
+        kwargs = super(Feed, self).feed_extra_kwargs(obj)
+        kwargs['hub'] = self.get_hub(obj)
+        return kwargs
